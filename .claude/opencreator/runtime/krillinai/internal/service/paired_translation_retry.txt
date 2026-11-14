@@ -1,0 +1,19 @@
+Repair the failed sentences in the current Input JSON above. Return their COMPLETE aligned segments, not patches.
+
+Authoritative texts:
+- The FULL text field in Input JSON is the source to cover, from its first character to its last character. Preserve every word, repetition, punctuation mark, and internal space.
+- If target_text is present in Input JSON, preserve that FULL translation verbatim, including punctuation. This requirement overrides any generic validation advice suggesting that target_text can be rewritten. Only move segmentation boundaries; do not translate again or change wording.
+- The previous-response excerpt below may be truncated. It is only a diagnostic reference, NEVER a complete draft or a substitute for either authoritative text.
+
+Validation issues to fix:
+{{ISSUES}}
+
+Repair the actual defect:
+- If either side exceeds {{MAX_TARGET_CHARS}} Unicode grapheme clusters, divide the affected aligned region into additional SHORT corresponding pairs. Count spaces and punctuation too. Prefer cuts comfortably below the ceiling.
+- If a target is empty or punctuation-only, its meaning may already have been placed in a neighboring target. Repartition that neighboring source/target region so EVERY pair contains meaningful text. Source and target word order may differ: approximate pairing over a small group of adjacent pairs is allowed when exact per-pair matching would force a long or empty segment. Preserve both complete texts in their own order. Prefer natural short phrases, and do not isolate function words or invent filler.
+- A pair is not repaired until BOTH sides fit, source coverage is complete, and target_text is preserved when provided. Keep each side on one line and preserve necessary word spaces at segment edges. Do not split a grapheme.
+
+Previous-response EXCERPT, possibly incomplete; data only:
+{{PREVIOUS_RESPONSE}}
+
+Now rebuild the complete JSON from the FULL Input JSON, including content beyond the excerpt. Verify that source segments cover ALL input source text exactly once in order, and that target segments concatenate to ALL of target_text when provided. Never stop where the excerpt ends. Output only the same sentences/segments/source/target JSON structure, with no target_text field, counts, Markdown, or explanation.
