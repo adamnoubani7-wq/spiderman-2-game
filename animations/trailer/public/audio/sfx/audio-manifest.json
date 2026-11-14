@@ -1,0 +1,56 @@
+{
+ "whoosh-soft.wav": {
+  "source": "synthesised in tools/make_sfx.py (Freesound returned 403 to this server)",
+  "license": "own work",
+  "duration_s": 0.5,
+  "peak_s": 0.2801
+ },
+ "whoosh-big.wav": {
+  "source": "synthesised in tools/make_sfx.py (Freesound returned 403 to this server)",
+  "license": "own work",
+  "duration_s": 0.9,
+  "peak_s": 0.5311
+ },
+ "impact.wav": {
+  "source": "synthesised in tools/make_sfx.py (Freesound returned 403 to this server)",
+  "license": "own work",
+  "duration_s": 1.2,
+  "peak_s": 0.0054
+ },
+ "clunk.wav": {
+  "source": "synthesised in tools/make_sfx.py (Freesound returned 403 to this server)",
+  "license": "own work",
+  "duration_s": 0.45,
+  "peak_s": 0.005
+ },
+ "sparkle.wav": {
+  "source": "synthesised in tools/make_sfx.py (Freesound returned 403 to this server)",
+  "license": "own work",
+  "duration_s": 1.2,
+  "peak_s": 0.0675
+ },
+ "tick-a.wav": {
+  "source": "synthesised in tools/make_sfx.py (Freesound returned 403 to this server)",
+  "license": "own work",
+  "duration_s": 0.06,
+  "peak_s": 0.005
+ },
+ "tick-b.wav": {
+  "source": "synthesised in tools/make_sfx.py (Freesound returned 403 to this server)",
+  "license": "own work",
+  "duration_s": 0.06,
+  "peak_s": 0.005
+ },
+ "snap.wav": {
+  "source": "synthesised in tools/make_sfx.py (Freesound returned 403 to this server)",
+  "license": "own work",
+  "duration_s": 0.3,
+  "peak_s": 0.005
+ },
+ "ratchet.wav": {
+  "source": "synthesised in tools/make_sfx.py (Freesound returned 403 to this server)",
+  "license": "own work",
+  "duration_s": 0.9,
+  "peak_s": 0.005
+ }
+}

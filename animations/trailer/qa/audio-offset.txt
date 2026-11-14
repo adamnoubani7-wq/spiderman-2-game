@@ -1,0 +1,4 @@
+clunk.wav placed f86 found f87.29 offset 1.29
+impact.wav placed f550 found f551.27 offset 1.27
+snap.wav placed f225 found f226.28 offset 1.28
+median 1.28
