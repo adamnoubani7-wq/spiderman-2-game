@@ -42,7 +42,7 @@ Fan-made science commentary. Not affiliated with Marvel, Sony or any studio whos
 break down.
 ```
 
-That's 507 characters, well under YouTube's 1,000 limit.
+That's 526 characters, well under YouTube's 1,000 limit.
 
 The cannonball example is only a sample "what if" to show the format. Swap it for a real upcoming
 topic before you publish. "New Shorts every week" is a promise, so keep it only if you can post
