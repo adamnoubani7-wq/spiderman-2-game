@@ -1,0 +1,20 @@
+<!doctype html><html><head><meta charset="utf-8"><style>@font-face{font-family:Poppins;font-weight:700;src:url(Poppins-Bold.ttf)}body{margin:0}</style></head><body>
+<canvas id="c" width="800" height="800"></canvas>
+<script src="../web-train/web/lib.js"></script><script src="../web-train/web/chars.js"></script><script src="../web-train/web/env.js"></script><script src="../web-train/web/env2.js"></script>
+<script>
+const ctx = document.getElementById('c').getContext('2d');
+const g = ctx.createRadialGradient(400, 330, 60, 400, 400, 560); g.addColorStop(0, '#6cc6ff'); g.addColorStop(1, '#2457c9');
+ctx.fillStyle = g; ctx.fillRect(0, 0, 800, 800);
+// faint orb web behind
+orbWeb(ctx, 400, 360, 520, 1, .18);
+// stick scientist bust
+drawStick(ctx, { x: 400, y: 1180, s: 1050, cols: ['#f2b52a', '#f2b52a'], hat: 'none', belt: false, shadow: false,
+  arms: { L: [.3, -.1], R: [.3, -.1] }, face: { eyes: 'wide', look: [.55, -.55], mouth: 'grin', browUp: 1 } });
+// goggles strap + lenses
+const hy = 1180 - .765 * 1050, hr = .19 * 1050;
+line(ctx, 400 - hr, hy - 5, 400 + hr, hy - 5, 22, INK);
+for (const s of [-1, 1]) { circle(ctx, 400 + s * 76, hy - 5, 64); fillStroke(ctx, "rgba(180,240,255,.35)", 14); }
+// spider dangling on a silk thread, top right
+line(ctx, 590, -10, 590, 190, 9, INK); line(ctx, 590, -10, 590, 190, 4, "#fff");
+drawSpider(ctx, 590, 220, .42, 0, { smile: true, look: [-.6, .5], wiggle: 0 });
+</script></body></html>
