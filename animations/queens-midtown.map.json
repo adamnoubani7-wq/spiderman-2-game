@@ -1,0 +1,5 @@
+{
+  "destination": "Midtown Manhattan", "minutes": 14, "distance": 9.5, "unit": "km",
+  "places": ["Forest Hills", "Flushing Meadows", "Long Island City", "Central Park", "East River"],
+  "accent": "#d7263d", "seed": 7
+}
