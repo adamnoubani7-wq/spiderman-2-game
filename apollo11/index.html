@@ -1,0 +1,363 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Apollo 11</title>
+<meta name="description" content="Apollo 11, the first crewed Moon landing, July 1969: an interactive mission clock, the descent, the crew and the numbers.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Exo:wght@400;500;700;800&family=Roboto+Mono:wght@400;500;700&display=swap">
+<style>
+/* Layout: a flight-director console at night. Full-bleed starfield hero with the Moon rising,
+   then the signature piece: a mission clock you scrub from liftoff to splashdown, driving a
+   schematic Earth-Moon trajectory. Then the descent as a callout log, the crew, the numbers.
+   One visual world (space, night), so the page commits to a single dark theme. */
+:root {
+  color-scheme: dark;
+  --void: #07080d;        /* page */
+  --panel: #10131c;       /* console panels */
+  --panel-2: #161a26;
+  --line: #262c3d;        /* hairlines */
+  --text: #eef1f7;        /* primary text */
+  --dim: #9aa3b8;         /* secondary text, 7.4:1 on void */
+  --signal: #6aa8ff;      /* launch blue: interactive, focus */
+  --amber: #ffb547;       /* console readouts, alarms */
+  --regolith: #c9c2b3;    /* lunar surface */
+  --display: "Exo", "Avenir Next", "Helvetica Neue", Arial, sans-serif;
+  --mono: "Roboto Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --s-1: .8125rem; --s0: 1rem; --s1: 1.25rem; --s2: 1.75rem; --s3: clamp(2rem, 4.2vw, 2.9rem); --s4: clamp(2.8rem, 8vw, 6.2rem);
+}
+* { box-sizing: border-box; }
+html { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); background: var(--void); }
+body { margin: 0; background: var(--void); color: var(--text); font: 400 var(--s0)/1.65 var(--display); -webkit-font-smoothing: antialiased; }
+img, svg, canvas { max-width: 100%; }
+a { color: var(--signal); text-underline-offset: 3px; }
+:focus-visible { outline: 2px solid var(--signal); outline-offset: 3px; border-radius: 4px; }
+h1, h2, h3 { margin: 0; font-family: var(--display); line-height: 1.05; text-wrap: balance; }
+.wrap { max-width: 1160px; margin-inline: auto; padding-left: max(18px, env(safe-area-inset-left, 0px)); padding-right: max(18px, env(safe-area-inset-right, 0px)); }
+.label { font: 500 var(--s-1)/1.3 var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--dim); }
+.mono { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+.skip { position: absolute; left: 12px; top: -60px; background: var(--signal); color: #04101f; padding: 10px 14px; border-radius: 6px; font-weight: 700; z-index: 20; }
+.skip:focus { top: calc(12px + env(safe-area-inset-top, 0px)); }
+
+/* top bar */
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); background: var(--void); z-index: 10; }
+.bar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 9; background: color-mix(in srgb, var(--void) 86%, transparent); backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); }
+.bar .wrap { display: flex; align-items: center; gap: 18px; min-height: 58px; }
+.bar b { font: 800 1.05rem/1 var(--display); letter-spacing: .04em; }
+.bar nav { margin-left: auto; display: flex; gap: 4px; flex-wrap: wrap; }
+.bar nav a { color: var(--dim); text-decoration: none; font: 500 var(--s-1)/1 var(--mono); letter-spacing: .08em; text-transform: uppercase; padding: 12px 10px; border-radius: 6px; }
+.bar nav a:hover { color: var(--text); background: var(--panel-2); }
+@media (max-width: 640px) { .bar nav { display: none; } }
+
+/* hero */
+.hero { position: relative; overflow: clip; border-bottom: 1px solid var(--line); }
+.hero canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.hero .wrap { position: relative; display: grid; gap: 22px; padding-block: 96px 120px; }
+.hero h1 { font-size: var(--s4); font-weight: 800; letter-spacing: -.02em; max-width: 12ch; }
+.hero .quote { font: 400 var(--s1)/1.5 var(--mono); color: var(--amber); max-width: 40ch; margin: 0; }
+.hero .quote span { color: var(--dim); display: block; font-size: var(--s-1); margin-top: 6px; }
+.hero .when { display: flex; flex-wrap: wrap; gap: 10px 28px; margin-top: 6px; }
+.hero .when div { display: grid; gap: 2px; }
+.hero .when strong { font: 500 var(--s1)/1.2 var(--mono); font-variant-numeric: tabular-nums; }
+@media (max-width: 640px) { .hero .wrap { padding-block: 64px 80px; } }
+
+section { padding-block: 88px; border-bottom: 1px solid var(--line); }
+.head { display: grid; gap: 10px; margin-bottom: 36px; max-width: 62ch; }
+.head h2 { font-size: var(--s3); font-weight: 800; letter-spacing: -.01em; }
+.head p { margin: 0; color: var(--dim); }
+
+/* mission clock: the signature interactive */
+.console { background: var(--panel); border: 1px solid var(--line); border-radius: 16px; padding: 24px; display: grid; gap: 22px; }
+.readout { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
+.readout div { display: grid; gap: 4px; min-width: 0; }
+.readout strong { font: 500 var(--s2)/1.1 var(--mono); font-variant-numeric: tabular-nums; color: var(--amber); white-space: nowrap; }
+.readout .phase strong { color: var(--text); font-family: var(--display); font-weight: 700; white-space: normal; }
+@media (max-width: 760px) { .readout { grid-template-columns: repeat(2, minmax(0, 1fr)); } .readout strong { font-size: var(--s1); } }
+.track { position: relative; }
+.track svg { display: block; width: 100%; height: auto; }
+.scrub { display: grid; gap: 10px; }
+.scrub label { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+input[type=range] { -webkit-appearance: none; appearance: none; width: 100%; height: 44px; background: transparent; cursor: pointer; margin: 0; }
+input[type=range]::-webkit-slider-runnable-track { height: 6px; border-radius: 3px; background: linear-gradient(90deg, var(--signal) var(--p, 0%), var(--line) var(--p, 0%)); }
+input[type=range]::-moz-range-track { height: 6px; border-radius: 3px; background: var(--line); }
+input[type=range]::-moz-range-progress { height: 6px; border-radius: 3px; background: var(--signal); }
+input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 26px; height: 26px; margin-top: -10px; border-radius: 50%; background: var(--text); border: 4px solid var(--signal); }
+input[type=range]::-moz-range-thumb { width: 18px; height: 18px; border-radius: 50%; background: var(--text); border: 4px solid var(--signal); }
+.jumps { display: flex; flex-wrap: wrap; gap: 8px; }
+.jumps button { min-height: 44px; padding: 0 14px; border-radius: 999px; border: 1px solid var(--line); background: var(--panel-2); color: var(--text); font: 500 var(--s-1)/1 var(--mono); letter-spacing: .04em; cursor: pointer; transition: border-color .2s, background .2s; }
+.jumps button:hover { border-color: var(--signal); }
+.jumps button[aria-pressed="true"] { background: var(--signal); border-color: var(--signal); color: #04101f; }
+.note { color: var(--dim); font-size: var(--s-1); margin: 0; }
+
+/* descent log */
+.log { list-style: none; margin: 0; padding: 0; display: grid; gap: 0; border-left: 2px solid var(--line); }
+.log li { position: relative; display: grid; grid-template-columns: 9.5rem minmax(0, 1fr); gap: 20px; padding: 18px 0 18px 26px; }
+.log li::before { content: ""; position: absolute; left: -7px; top: 26px; width: 12px; height: 12px; border-radius: 50%; background: var(--void); border: 2px solid var(--dim); }
+.log li.alarm::before { border-color: var(--amber); background: var(--amber); }
+.log li.land::before { border-color: var(--signal); background: var(--signal); }
+.log .call { font: 500 var(--s1)/1.3 var(--mono); color: var(--amber); }
+.log li.land .call { color: var(--text); }
+.log p { margin: 0; color: var(--dim); max-width: 60ch; }
+.log h3 { font-size: var(--s1); margin-bottom: 4px; }
+@media (max-width: 640px) { .log li { grid-template-columns: 1fr; gap: 6px; } }
+
+/* crew */
+.crew { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
+.crew article { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 22px; display: grid; gap: 10px; align-content: start; min-width: 0; }
+.crew h3 { font-size: var(--s2); }
+.crew .role { font: 500 var(--s-1)/1.3 var(--mono); color: var(--signal); letter-spacing: .06em; text-transform: uppercase; }
+.crew p { margin: 0; color: var(--dim); }
+.patch { width: 52px; height: 52px; }
+@media (max-width: 860px) { .crew { grid-template-columns: 1fr; } }
+
+/* numbers */
+.nums { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; }
+.nums div { background: var(--panel); padding: 26px 22px; display: grid; gap: 8px; min-width: 0; }
+.nums strong { font: 700 var(--s3)/1 var(--mono); font-variant-numeric: tabular-nums; letter-spacing: -.02em; }
+.nums span { color: var(--dim); }
+@media (max-width: 760px) { .nums { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 460px) { .nums { grid-template-columns: 1fr; } }
+
+footer { padding-block: 40px 56px; color: var(--dim); font-size: var(--s-1); }
+footer .wrap { display: grid; gap: 12px; }
+footer ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
+
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
+</style>
+</head>
+<body>
+<a class="skip" href="#clock">Skip to the mission clock</a>
+<header class="bar">
+  <div class="wrap">
+    <b>APOLLO 11</b>
+    <nav aria-label="Sections"><a href="#clock">Mission clock</a><a href="#descent">Descent</a><a href="#crew">Crew</a><a href="#numbers">Numbers</a></nav>
+  </div>
+</header>
+
+<main>
+  <div class="hero">
+    <canvas id="sky" aria-hidden="true"></canvas>
+    <div class="wrap">
+      <p class="label">July 1969 · Sea of Tranquility</p>
+      <h1>The first people on the Moon.</h1>
+      <p class="quote">"Houston, Tranquility Base here. The Eagle has landed."<span>Neil Armstrong, 20 July 1969, 20:17 UTC</span></p>
+      <div class="when">
+        <div><span class="label">Liftoff</span><strong>16 Jul · 13:32 UTC</strong></div>
+        <div><span class="label">Landing</span><strong>20 Jul · 20:17 UTC</strong></div>
+        <div><span class="label">Splashdown</span><strong>24 Jul · 16:50 UTC</strong></div>
+      </div>
+    </div>
+  </div>
+
+  <section id="clock">
+    <div class="wrap">
+      <div class="head">
+        <p class="label">Mission clock</p>
+        <h2>Eight days, from Florida to the Pacific.</h2>
+        <p>Drag the clock, use the arrow keys (10 minutes) or Page Up and Page Down (6 hours), or jump to an event. The trajectory is a schematic: Earth, Moon and distances are not to scale.</p>
+      </div>
+      <div class="console">
+        <div class="readout" aria-live="polite">
+          <div><span class="label">Elapsed (GET)</span><strong id="get">000:00:00</strong></div>
+          <div><span class="label">UTC</span><strong id="utc">16 Jul 13:32</strong></div>
+          <div class="phase" style="grid-column: span 2"><span class="label">Phase</span><strong id="phase">Liftoff</strong></div>
+        </div>
+        <div class="track">
+          <svg viewBox="0 0 1000 300" role="img" aria-label="Schematic Earth to Moon trajectory with the spacecraft's position">
+            <defs>
+              <radialGradient id="earth" cx="40%" cy="40%"><stop offset="0" stop-color="#7cc0ff"/><stop offset=".7" stop-color="#2557a8"/><stop offset="1" stop-color="#0d2552"/></radialGradient>
+              <radialGradient id="moon" cx="40%" cy="40%"><stop offset="0" stop-color="#eae5da"/><stop offset="1" stop-color="#8f897c"/></radialGradient>
+            </defs>
+            <path id="outbound" d="M150 150 C 330 20, 690 30, 840 118" fill="none" stroke="#3a4560" stroke-width="2" stroke-dasharray="6 7"/>
+            <path id="inbound" d="M840 182 C 690 280, 330 285, 150 150" fill="none" stroke="#3a4560" stroke-width="2" stroke-dasharray="6 7"/>
+            <circle cx="880" cy="150" r="46" fill="none" stroke="#3a4560" stroke-width="2" stroke-dasharray="3 6"/>
+            <circle cx="150" cy="150" r="58" fill="url(#earth)"/>
+            <circle cx="880" cy="150" r="30" fill="url(#moon)"/>
+            <text x="150" y="240" fill="#9aa3b8" font-family="Roboto Mono, monospace" font-size="15" text-anchor="middle">EARTH</text>
+            <text x="880" y="228" fill="#9aa3b8" font-family="Roboto Mono, monospace" font-size="15" text-anchor="middle">MOON</text>
+            <g id="craft"><circle r="13" fill="#6aa8ff" opacity=".25"/><circle r="6" fill="#eef1f7"/></g>
+          </svg>
+        </div>
+        <div class="scrub">
+          <label for="t"><span class="label">Drag through the mission</span><span class="label mono" id="pct">0%</span></label>
+          <input id="t" type="range" min="0" max="703115" step="1" value="0" aria-describedby="phase">
+          <div class="jumps" role="group" aria-label="Jump to an event" id="jumps"></div>
+        </div>
+        <p class="note">Ground elapsed time (GET) counts from liftoff. Event times from NASA's Apollo 11 mission timeline.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="descent">
+    <div class="wrap">
+      <div class="head">
+        <p class="label">Powered descent</p>
+        <h2>The last minutes before touchdown.</h2>
+        <p>The lunar module Eagle came down with alarms on the guidance computer, a boulder field under the planned landing spot and fuel running low.</p>
+      </div>
+      <ol class="log">
+        <li class="alarm"><span class="call">"1202"</span><div><h3>Program alarm</h3><p>The guidance computer flagged it was overloaded. Mission Control judged it safe to keep going, and the descent continued through more 1202 and 1201 alarms.</p></div></li>
+        <li><span class="call">Manual</span><div><h3>Armstrong takes over</h3><p>The computer was steering toward a crater ringed with boulders. Armstrong flew Eagle by hand, past the field, looking for flat ground.</p></div></li>
+        <li class="alarm"><span class="call">"60 seconds"</span><div><h3>Fuel call</h3><p>Mission Control warned about how much descent fuel was left before the crew would have to land or abort.</p></div></li>
+        <li class="alarm"><span class="call">"30 seconds"</span><div><h3>Second fuel call</h3><p>Eagle was still settling toward the surface, kicking up a sheet of dust.</p></div></li>
+        <li class="land"><span class="call">"Contact light"</span><div><h3>Touchdown, 20:17 UTC</h3><p>A probe under a footpad touched the surface. Moments later: "Houston, Tranquility Base here. The Eagle has landed."</p></div></li>
+        <li class="land"><span class="call">02:56 UTC</span><div><h3>First step, 21 July</h3><p>"That's one small step for man, one giant leap for mankind." Aldrin followed about 20 minutes later.</p></div></li>
+      </ol>
+    </div>
+  </section>
+
+  <section id="crew">
+    <div class="wrap">
+      <div class="head">
+        <p class="label">Crew</p>
+        <h2>Three astronauts. Two walked on the Moon.</h2>
+      </div>
+      <div class="crew">
+        <article>
+          <svg class="patch" viewBox="0 0 52 52" aria-hidden="true"><circle cx="26" cy="26" r="24" fill="none" stroke="#6aa8ff" stroke-width="2"/><path d="M26 12 L30 34 L26 30 L22 34 Z" fill="#eef1f7"/></svg>
+          <span class="role">Commander</span><h3>Neil Armstrong</h3>
+          <p>Flew Eagle to the surface by hand and was the first person to step onto the Moon.</p>
+        </article>
+        <article>
+          <svg class="patch" viewBox="0 0 52 52" aria-hidden="true"><circle cx="26" cy="26" r="24" fill="none" stroke="#6aa8ff" stroke-width="2"/><circle cx="26" cy="27" r="9" fill="#c9c2b3"/></svg>
+          <span class="role">Lunar module pilot</span><h3>Buzz Aldrin</h3>
+          <p>Called out speed and altitude during the descent, then joined Armstrong on the surface.</p>
+        </article>
+        <article>
+          <svg class="patch" viewBox="0 0 52 52" aria-hidden="true"><circle cx="26" cy="26" r="24" fill="none" stroke="#6aa8ff" stroke-width="2"/><ellipse cx="26" cy="26" rx="17" ry="7" fill="none" stroke="#eef1f7" stroke-width="2"/></svg>
+          <span class="role">Command module pilot</span><h3>Michael Collins</h3>
+          <p>Stayed in lunar orbit aboard Columbia, alone, to bring the other two home.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section id="numbers">
+    <div class="wrap">
+      <div class="head">
+        <p class="label">By the numbers</p>
+        <h2>The mission, measured.</h2>
+      </div>
+      <div class="nums">
+        <div><strong>195:18:35</strong><span>Total mission time, about 8 days 3 hours</span></div>
+        <div><strong>2 h 31 min</strong><span>Time spent walking on the surface</span></div>
+        <div><strong>21.5 kg</strong><span>Lunar rock and soil brought back</span></div>
+        <div><strong>384,400 km</strong><span>Average distance from Earth to the Moon</span></div>
+        <div><strong>21 h 36 min</strong><span>Time Eagle spent on the Moon</span></div>
+        <div><strong>0.67° N 23.47° E</strong><span>Tranquility Base, where Eagle landed</span></div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <p>An independent explainer page. Not affiliated with NASA.</p>
+    <ul>
+      <li><a href="https://www.nasa.gov/wp-content/uploads/static/history/SP-4029/Apollo_11i_Timeline.htm" target="_blank" rel="noopener">NASA SP-4029: Apollo 11 timeline</a></li>
+      <li><a href="https://airandspace.si.edu/apollo-11-timeline" target="_blank" rel="noopener">Smithsonian National Air and Space Museum: Apollo 11 timeline</a></li>
+      <li><a href="https://www.nasa.gov/wp-content/uploads/static/history/SP-4029/Apollo_11a_Summary.htm" target="_blank" rel="noopener">NASA SP-4029: Apollo 11 summary</a></li>
+    </ul>
+  </div>
+</footer>
+
+<script>
+(() => {
+  // ---------- mission clock ----------
+  const LAUNCH = Date.UTC(1969, 6, 16, 13, 32, 0);
+  const T = (h, m, s = 0) => h * 3600 + m * 60 + s;           // ground elapsed time -> seconds
+  const EVENTS = [
+    { t: 0,              name: 'Liftoff',                 short: 'Liftoff' },
+    { t: T(2, 44, 16),   name: 'Translunar injection',     short: 'Leave Earth orbit' },
+    { t: T(75, 49, 50),  name: 'Lunar orbit insertion',    short: 'Moon orbit' },
+    { t: T(102, 45, 40), name: 'Eagle lands',              short: 'Landing' },
+    { t: T(109, 24, 15), name: 'First step',               short: 'First step' },
+    { t: T(124, 22, 0),  name: 'Eagle lifts off the Moon', short: 'Lunar liftoff' },
+    { t: T(135, 23, 42), name: 'Transearth injection',     short: 'Head home' },
+    { t: T(195, 18, 35), name: 'Splashdown',               short: 'Splashdown' },
+  ];
+  const PHASES = [ // [from, label]
+    [0, 'Liftoff and Earth orbit'], [EVENTS[1].t, 'Coasting to the Moon'], [EVENTS[2].t, 'In lunar orbit'],
+    [EVENTS[3].t, 'On the surface, Tranquility Base'], [EVENTS[5].t, 'Rejoining Columbia in lunar orbit'],
+    [EVENTS[6].t, 'Coasting home to Earth'], [EVENTS[7].t, 'Splashdown, Pacific Ocean'],
+  ];
+  const $ = id => document.getElementById(id);
+  const range = $('t'), craft = $('craft'), out = $('outbound'), inb = $('inbound');
+  const pad = (n, w = 2) => String(Math.floor(n)).padStart(w, '0');
+  const MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+  function position(t) {
+    const e = EVENTS;
+    const along = (path, f) => path.getPointAtLength(path.getTotalLength() * Math.min(1, Math.max(0, f)));
+    if (t < e[1].t) return { x: 150 + 64 * Math.cos(t / 5300 * 6.283), y: 150 + 64 * Math.sin(t / 5300 * 6.283) }; // parking orbit
+    if (t < e[2].t) return along(out, (t - e[1].t) / (e[2].t - e[1].t));
+    if (t < e[6].t) {
+      if (t >= e[3].t && t < e[5].t) return { x: 880, y: 120 }; // Eagle on the surface (Columbia keeps orbiting)
+      const a = (t - e[2].t) / 7200 * 6.283; return { x: 880 + 46 * Math.cos(a), y: 150 + 46 * Math.sin(a) };
+    }
+    return along(inb, (t - e[6].t) / (e[7].t - e[6].t));
+  }
+  function render() {
+    const t = +range.value;
+    $('get').textContent = `${pad(t / 3600, 3)}:${pad(t % 3600 / 60)}:${pad(t % 60)}`;
+    const d = new Date(LAUNCH + t * 1000);
+    $('utc').textContent = `${pad(d.getUTCDate())} ${MON[d.getUTCMonth()]} ${pad(d.getUTCHours())}:${pad(d.getUTCMinutes())}`;
+    let label = PHASES[0][1]; for (const [from, l] of PHASES) if (t >= from) label = l;
+    $('phase').textContent = label;
+    const p = (t / +range.max * 100);
+    $('pct').textContent = p.toFixed(0) + '%';
+    range.style.setProperty('--p', p + '%');
+    range.setAttribute('aria-valuetext', `${$('get').textContent} elapsed, ${label}`);
+    const pos = position(t); craft.setAttribute('transform', `translate(${pos.x.toFixed(1)} ${pos.y.toFixed(1)})`);
+    for (const b of document.querySelectorAll('#jumps button')) b.setAttribute('aria-pressed', String(+b.dataset.t === t));
+  }
+  const jumps = $('jumps');
+  for (const e of EVENTS) {
+    const b = document.createElement('button'); b.type = 'button'; b.textContent = e.short; b.dataset.t = e.t; b.title = e.name;
+    b.addEventListener('click', () => { range.value = e.t; render(); }); jumps.appendChild(b);
+  }
+  range.addEventListener('input', render);
+  // arrow keys move 10 minutes, Page Up/Down 6 hours (a 1-second step would be too slow by keyboard)
+  range.addEventListener('keydown', ev => {
+    const step = { ArrowRight: 600, ArrowUp: 600, ArrowLeft: -600, ArrowDown: -600, PageUp: 21600, PageDown: -21600 }[ev.key];
+    if (step === undefined) return; ev.preventDefault();
+    range.value = Math.min(+range.max, Math.max(0, +range.value + step)); render();
+  });
+  range.value = EVENTS[3].t; // open on the landing: the moment people came for
+  render();
+
+  // ---------- hero sky: stars + the Moon on the horizon ----------
+  const cv = $('sky'), ctx = cv.getContext('2d');
+  const still = matchMedia('(prefers-reduced-motion: reduce)');
+  let stars = [], W = 0, H = 0, raf = 0, visible = true;
+  function seed() {
+    const dpr = Math.min(2, devicePixelRatio || 1); W = cv.clientWidth; H = cv.clientHeight;
+    cv.width = W * dpr; cv.height = H * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    let s = 7; const rnd = () => (s = (s * 16807) % 2147483647) / 2147483647;
+    stars = Array.from({ length: Math.round(W * H / 2600) }, () => ({ x: rnd() * W, y: rnd() * H, r: rnd() * 1.3 + .2, p: rnd() * 6.28 }));
+  }
+  function draw(time) {
+    ctx.clearRect(0, 0, W, H);
+    const g = ctx.createLinearGradient(0, 0, 0, H); g.addColorStop(0, '#07080d'); g.addColorStop(1, '#0d1220'); ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+    for (const st of stars) { const tw = still.matches ? .8 : .55 + .45 * Math.sin(time / 900 + st.p); ctx.globalAlpha = tw; ctx.fillStyle = '#eef1f7'; ctx.beginPath(); ctx.arc(st.x, st.y, st.r, 0, 6.283); ctx.fill(); }
+    ctx.globalAlpha = 1;
+    const R = Math.max(W, 900) * .62, cx = W * .78, cy = H + R * .72;  // a huge Moon rising from the bottom edge
+    const mg = ctx.createRadialGradient(cx - R * .3, cy - R * .4, R * .1, cx, cy, R); mg.addColorStop(0, '#e9e3d6'); mg.addColorStop(.75, '#a79f90'); mg.addColorStop(1, '#5d574d');
+    ctx.fillStyle = mg; ctx.beginPath(); ctx.arc(cx, cy, R, 0, 6.283); ctx.fill();
+    let s = 3; const rnd = () => (s = (s * 16807) % 2147483647) / 2147483647;
+    for (let i = 0; i < 46; i++) { const a = -Math.PI * (.15 + rnd() * .7), d = R * (.55 + rnd() * .43), x = cx + Math.cos(a) * d, y = cy + Math.sin(a) * d, r = 4 + rnd() * 26;
+      ctx.fillStyle = 'rgba(70,64,56,.28)'; ctx.beginPath(); ctx.ellipse(x, y, r, r * .55, 0, 0, 6.283); ctx.fill(); }
+    const shade = ctx.createLinearGradient(0, 0, W, 0); shade.addColorStop(0, 'rgba(7,8,13,.55)'); shade.addColorStop(.55, 'rgba(7,8,13,.25)'); shade.addColorStop(1, 'rgba(7,8,13,0)');
+    ctx.fillStyle = shade; ctx.fillRect(0, 0, W, H); // soft fade keeps the text side readable, no hard edge
+    if (!still.matches && visible) raf = requestAnimationFrame(draw);
+  }
+  seed(); draw(0);
+  addEventListener('resize', () => { cancelAnimationFrame(raf); seed(); draw(performance.now()); });
+  new IntersectionObserver(([en]) => { visible = en.isIntersecting; cancelAnimationFrame(raf); if (visible) draw(performance.now()); }).observe(cv);
+  still.addEventListener('change', () => { cancelAnimationFrame(raf); draw(performance.now()); });
+})();
+</script>
+</body>
+</html>
