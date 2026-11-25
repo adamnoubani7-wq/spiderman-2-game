@@ -1,0 +1,51 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+@font-face{font-family:Poppins;font-weight:700;src:url(../web/fonts/Poppins-Bold.ttf)}
+body{margin:0;background:#000} canvas{display:block}</style></head><body>
+<canvas id="a" width="1920" height="1080"></canvas><canvas id="b" width="1920" height="1080"></canvas><canvas id="c" width="1920" height="1080"></canvas>
+<script src="../web/lib.js"></script><script src="../web/chars.js"></script><script src="../web/env.js"></script>
+<script src="../web/env2.js"></script><script src="../web/env3.js"></script><script src="../web/env5.js"></script>
+<script>
+const C2 = (b, e) => Object.assign({}, b, e);
+const DARK = '#1b1820';
+function grid(ctx, bg, ln, step = 60) { ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.fillStyle = bg; ctx.fillRect(0, 0, 1920, 1080); ctx.strokeStyle = ln; ctx.lineWidth = 2;
+  for (let x = 0; x <= 1920; x += step) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, 1080); ctx.stroke(); }
+  for (let y = 0; y <= 1080; y += step) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(1920, y); ctx.stroke(); } }
+function glow(ctx, x, y, r, col) { const g = ctx.createRadialGradient(x, y, 20, x, y, r); g.addColorStop(0, col); g.addColorStop(1, 'rgba(0,0,0,0)'); ctx.fillStyle = g; ctx.fillRect(0, 0, 1920, 1080); }
+
+// A: dark + drama. Giant shocked Alex close-up, falling coins, red text
+function A() { const ctx = document.getElementById('a').getContext('2d');
+  grid(ctx, DARK, 'rgba(255,255,255,.05)'); glow(ctx, 1380, 560, 900, 'rgba(216,49,43,.45)');
+  for (const [x, y, r, t] of [[1050, 140, 60, .5], [1780, 90, 52, -.4], [1180, 420, 44, 1.2], [1860, 520, 58, .2], [980, 760, 50, -.8]]) coin(ctx, x, y, r, t);
+  drawStick(ctx, C2(ALEX, { x: 1420, y: 2050, s: 1700, shadow: false, arms: { L: [2.3, -2.3], R: [2.3, -2.3] }, face: { eyes: 'wide', mouth: 'o', look: [-1, -.2] } }));
+  text(ctx, '$140,000', 520, 330, 210, GOLD, INK, 26);
+  ctx.save(); ctx.translate(520, 560); ctx.rotate(-.05); rrect(ctx, -300, -115, 600, 230, 30); fillStroke(ctx, REDC, 14); text(ctx, 'GONE', 0, 12, 200, '#fff', INK, 0); ctx.restore();
+  tag(ctx, 520, 800, 'just for starting at 35', '#fff', INK, 60);
+}
+
+// B: split screen, the two results side by side
+function B() { const ctx = document.getElementById('b').getContext('2d');
+  grid(ctx, '#d9f3e2', 'rgba(15,90,50,.10)'); ctx.fillStyle = '#f6d9d4'; ctx.fillRect(960, 0, 960, 1080); ctx.strokeStyle = 'rgba(160,40,30,.10)'; ctx.lineWidth = 2;
+  for (let x = 960; x <= 1920; x += 60) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, 1080); ctx.stroke(); } for (let y = 0; y <= 1080; y += 60) { ctx.beginPath(); ctx.moveTo(960, y); ctx.lineTo(1920, y); ctx.stroke(); }
+  line(ctx, 960, 0, 960, 1080, 12, INK);
+  text(ctx, 'AGE 25', 480, 110, 120, SAMC, INK, 14); text(ctx, 'AGE 35', 1440, 110, 120, ALEXC, INK, 14);
+  coinStack(ctx, 640, 1010, 18, 100); drawStick(ctx, C2(SAM, { x: 280, y: 1020, s: 470, arms: { L: [2.6, .2], R: [2.6, .2] }, face: { eyes: 'happy', mouth: 'grin' } }));
+  coinStack(ctx, 1280, 1010, 8, 100); drawStick(ctx, C2(ALEX, { x: 1640, y: 1020, s: 470, arms: { L: [2.3, -2.3], R: [2.3, -2.3] }, face: { eyes: 'wide', mouth: 'o', look: [-1, 0] } }));
+  text(ctx, '$262K', 480, 300, 170, GREEN, INK, 20); text(ctx, '$122K', 1440, 300, 170, REDC, INK, 20);
+  circle(ctx, 960, 560, 120); fillStroke(ctx, GOLD, 12); text(ctx, 'VS', 960, 568, 110, INK, INK, 0);
+}
+
+// C: the graph. Two lines pull apart, the gap is red
+function C() { const ctx = document.getElementById('c').getContext('2d');
+  grid(ctx, '#fbf6ea', 'rgba(34,28,34,.06)');
+  const X = a => 140 + (a - 25) / 40 * 1640, Y = v => 1000 - v / 270000 * 780;
+  const sam = [], alex = []; for (let a = 25; a <= 65.001; a += .25) { sam.push([X(a), Y(valueAtAge(a, { start: 25 }))]); if (a >= 35) alex.push([X(a), Y(valueAtAge(a, { start: 35 }))]); }
+  ctx.beginPath(); ctx.moveTo(...sam[40]); for (const p of sam.slice(40)) ctx.lineTo(...p); for (const p of alex.slice().reverse()) ctx.lineTo(...p); ctx.closePath(); ctx.fillStyle = 'rgba(216,49,43,.35)'; ctx.fill();
+  for (const [pts, col] of [[sam, SAMC], [alex, ALEXC]]) for (const [c, w] of [[INK, 30], [col, 18]]) { path(ctx, pts, false); ctx.lineWidth = w; ctx.strokeStyle = c; ctx.lineJoin = ctx.lineCap = 'round'; ctx.stroke(); }
+  line(ctx, 140, 1000, 1800, 1000, 8);
+  tag(ctx, 1500, 210, 'started at 25', SAMC, '#fff', 50); tag(ctx, 1560, 860, 'started at 35', ALEXC, '#fff', 50);
+  ctx.save(); ctx.translate(1560, 560); ctx.rotate(-.05); rrect(ctx, -320, -95, 640, 190, 28); fillStroke(ctx, REDC, 12); text(ctx, '-$140,000', 0, 8, 110, '#fff', INK, 0); ctx.restore();
+  text(ctx, '10 YEARS LATE', 640, 190, 140, INK, INK, 0);
+  drawStick(ctx, C2(ALEX, { x: 560, y: 1000, s: 520, arms: { L: [2.3, -2.3], R: [2.3, -2.3] }, face: { eyes: 'wide', mouth: 'o', look: [1, -.3] } }));
+}
+document.fonts.load('700 100px Poppins').then(() => { A(); B(); C(); document.title = 'ready'; });
+</script></body></html>
