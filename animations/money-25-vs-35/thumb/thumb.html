@@ -1,0 +1,33 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+@font-face{font-family:Poppins;font-weight:700;src:url(../web/fonts/Poppins-Bold.ttf)}
+body{margin:0;background:#000}</style></head><body>
+<canvas id="c" width="1920" height="1080"></canvas>
+<script src="../web/lib.js"></script><script src="../web/chars.js"></script><script src="../web/env.js"></script>
+<script src="../web/env2.js"></script><script src="../web/env3.js"></script><script src="../web/env5.js"></script>
+<script>
+function draw() {
+  const ctx = document.getElementById('c').getContext('2d');
+  paper(ctx, { x: 960, y: 540, z: 1 });
+  // left half glows green (winner), right half red (loser)
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  let g = ctx.createRadialGradient(470, 700, 50, 470, 700, 800); g.addColorStop(0, 'rgba(63,191,116,.45)'); g.addColorStop(1, 'rgba(63,191,116,0)'); ctx.fillStyle = g; ctx.fillRect(0, 0, 1920, 1080);
+  g = ctx.createRadialGradient(1450, 760, 50, 1450, 760, 750); g.addColorStop(0, 'rgba(216,49,43,.28)'); g.addColorStop(1, 'rgba(216,49,43,0)'); ctx.fillStyle = g; ctx.fillRect(0, 0, 1920, 1080);
+  floorLine(ctx, 1000);
+  // Sam: huge coin stack, celebrating
+  coinStack(ctx, 560, 990, 23, 92);
+  drawStick(ctx, C2(SAM, { x: 250, y: 1000, s: 470, arms: { L: [2.6, .2], R: [2.6, .2] }, face: { eyes: 'happy', mouth: 'grin' } }));
+  // Alex: a tiny stack, shocked
+  coinStack(ctx, 1330, 990, 6, 92);
+  drawStick(ctx, C2(ALEX, { x: 1640, y: 1000, s: 470, arms: { L: [2.3, -2.3], R: [2.3, -2.3] }, face: { eyes: 'wide', mouth: 'o', look: [-1, 0] } }));
+  tag(ctx, 250, 445, 'started at 25', SAMC, '#fff', 54);
+  tag(ctx, 1640, 445, 'started at 35', ALEXC, '#fff', 54);
+  // headline: two big lines, readable at phone size
+  text(ctx, '$140,000', 1190, 150, 200, GOLD, INK, 24);
+  ctx.save(); ctx.translate(1190, 335); ctx.rotate(-.04);
+  rrect(ctx, -250, -95, 500, 190, 26); fillStroke(ctx, REDC, 12); text(ctx, 'GONE', 0, 10, 170, '#fff', INK, 0); ctx.restore();
+  // arrow from the gap toward Alex
+  document.title = 'ready';
+}
+const C2 = (b, e) => Object.assign({}, b, e);
+document.fonts.load('700 100px Poppins').then(draw);
+</script></body></html>
