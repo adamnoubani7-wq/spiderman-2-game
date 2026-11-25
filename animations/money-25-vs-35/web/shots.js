@@ -2,17 +2,19 @@
 const C = (base, extra) => Object.assign({}, base, extra);
 const LS = i => { const w = WORDS.find(x => x.line === i); return w ? w.s : 0; };   // line start (s)
 const LE = i => { const ws = WORDS.filter(x => x.line === i); return ws.length ? ws[ws.length - 1].e : 0; };
-const VO_END = 454.05, END_DUR = 12;
+const WS = (i, w) => { const x = WORDS.find(o => o.line === i && o.w.toLowerCase().startsWith(w)); return { t: x ? x.s : LS(i) }; };   // a word's start in line i
+const VO_END = 468.75, END_DUR = 12;
 const SHOTS = [];
 let _plan = [];
 function shot(line, tr, draw) { _plan.push({ line, tr, draw }); }
 function finalize() {
   _plan.forEach((p, k) => {
-    const start = k === 0 ? 0 : (p.line === 'end' ? VO_END + .35 : LS(p.line));
+    const T0 = l => (l === 'end' ? VO_END + .35 : typeof l === 'object' ? l.t : LS(l));
+    const start = k === 0 ? 0 : T0(p.line);
     const next = _plan[k + 1];
-    const end = next ? (next.line === 'end' ? VO_END + .35 : LS(next.line)) : VO_END + .35 + END_DUR;
+    const end = next ? T0(next.line) : VO_END + .35 + END_DUR;
     const base = start;
-    SHOTS.push({ start, end, tr: p.tr, draw: (ctx, lt, t) => p.draw(ctx, lt, t, i => (typeof i === 'number' ? LS(i) : i) - base) });
+    SHOTS.push({ start, end, tr: p.tr, draw: (ctx, lt, t) => p.draw(ctx, lt, t, i => (typeof i === 'number' ? LS(i) : typeof i === 'object' ? i.t : i) - base) });
   });
 }
 const walk = (t, sp = 9, amp = .5) => ({ L: [Math.sin(t * sp) * amp + .05, -Math.max(0, Math.sin(t * sp + 1)) * .7], R: [-Math.sin(t * sp) * amp + .05, -Math.max(0, -Math.sin(t * sp + 1)) * .7] });
@@ -100,10 +102,11 @@ shot(15, 'cut', (ctx, lt, t) => { duoBG(ctx, lt, t);
 shot(16, 'cut', (ctx, lt, t) => { duoBG(ctx, lt, t); mattressBed(ctx, 960, 880, 1.3, 0);
   drawStick(ctx, C(SAM, { x: 520, y: 900, s: 330, arms: hips, face: { eyes: 'squint', mouth: 'frown' } }));
   const p = popIn(lt, .4); if (p > 0) tag(ctx, 960, 360, 'not saving: shrinking', REDC, '#fff', 56 * p); });
-shot(17, 'cut', (ctx, lt, t) => { duoBG(ctx, lt, t); bankBuilding(ctx, 1260, 900, 1.15);
+shot(17, 'cut', (ctx, lt, t, at) => { duoBG(ctx, lt, t); bankBuilding(ctx, 1260, 900, 1.15);
   drawStick(ctx, C(SAM, { x: 520, y: 900, s: 330, arms: { L: [.3, -.1], R: [1.3, -.3] }, face: { eyes: 'normal', mouth: 'smile' } }));
-  const p = popIn(lt, 2.6); if (p > 0) { card(ctx, 330, 200, 560, 220); text(ctx, 'savings at 0.5%', 610, 250, 40, '#5f5862', INK, 0); bigNum(ctx, 610, 340, 53124, 88, GREEN_D, (lt - 2.6) / 1.5, 48000); }
-  const q = popIn(lt, 5.3); if (q > 0) tag(ctx, 1260, 220, 'mattress: $48,000', '#fff', INK, 40 * q); });
+  const p = popIn(lt, .6); if (p > 0) { card(ctx, 330, 200, 560, 220); text(ctx, 'sitting in the bank', 610, 250, 40, '#5f5862', INK, 0); text(ctx, '$48,000', 610, 340, 88 * p, INK, INK, 0); }
+  const q = popIn(lt, at(18) + 1.2); if (q > 0) tag(ctx, 1260, 220, 'prices keep going up  ↑', REDC, '#fff', 44 * q);
+  const r = popIn(lt, at(19) + .8); if (r > 0) tag(ctx, 960, 110, 'your money has to work', GREEN, '#fff', 54 * r); });
 shot(20, 'whip', (ctx, lt, t) => { duoBG(ctx, lt, t);
   drawStick(ctx, C(SAM, { x: 760, y: 900, s: 380, arms: { L: [.3, -.1], R: { ik: [.18, -.82] } }, headTilt: .12, face: { eyes: 'normal', look: [.6, -.7], mouth: 'flat' } }));
   const p = popIn(lt, .3); if (p > 0) text(ctx, '?', 1120, 420, 260 * p, GOLD, INK, 18); });
@@ -120,7 +123,7 @@ shot(21, 'cut', (ctx, lt, t) => { paper(ctx, drift(t, lt));
   card(ctx, 200, 150, 1520, 720); line(ctx, 280, 800, 1640, 800, 6);
   const pts = marketLine(ctx, 290, 1620, 790, 560, (lt - .2) / 5);
   text(ctx, '1928', 290, 840, 36, '#5f5862', INK, 0); text(ctx, 'today', 1620, 840, 36, '#5f5862', INK, 0);
-  const p = popIn(lt, 3.6); if (p > 0) tag(ctx, 720, 250, 'S&P 500: about 10% a year', GREEN, '#fff', 48 * p);
+  const p = popIn(lt, 3.6); if (p > 0) tag(ctx, 720, 250, 'stock market: about 10% a year', GREEN, '#fff', 48 * p);
   const q = popIn(lt, 7.2); if (q > 0) tag(ctx, 720, 350, 'after inflation: about 7%', SAMC, '#fff', 48 * q); });
 shot(24, 'cut', (ctx, lt, t) => { duoBG(ctx, lt, t);
   const p = popIn(lt, .1); ctx.save(); ctx.translate(960, 430); ctx.scale(p, p); text(ctx, '7%', 0, 0, 280, GREEN, INK, 22); ctx.restore();
@@ -133,24 +136,30 @@ shot(28, 'cut', (ctx, lt, t) => { paper(ctx, drift(t, lt)); card(ctx, 200, 150, 
   marketLine(ctx, 290, 1620, 790, 560, 1, .72);
   const u = clamp(lt / 1.5); ctx.save(); ctx.setLineDash([22, 16]); line(ctx, 290, 780, lerp(290, 1620, u), lerp(780, 230, u), 8, SAMC); ctx.restore();
   const p = popIn(lt, 1.6); if (p > 0) tag(ctx, 1240, 330, 'long-run trend, not a promise', SAMC, '#fff', 42 * p); });
-shot(29, 'whip', (ctx, lt, t) => { duoBG(ctx, lt, t); indexBasket(ctx, 1150, 760, 1.1, 12, clamp((lt - .5) / 7));
+shot(29, 'whip', (ctx, lt, t, at) => { duoBG(ctx, lt, t); indexBasket(ctx, 1150, 760, 1.1, 12, clamp((lt - .5) / 7));
   drawStick(ctx, C(SAM, { x: 480, y: 900, s: 330, arms: { L: [.3, -.1], R: [1.5, -.3] }, face: { eyes: 'happy', mouth: 'smile' } }));
   const p = popIn(lt, .4); if (p > 0) tag(ctx, 960, 170, 'tiny pieces of lots of companies', '#fff', INK, 46 * p);
-  const q = popIn(lt, 10); if (q > 0) tag(ctx, 1150, 300, 'one bad company can\'t sink you', GREEN, '#fff', 40 * q); });
-shot(31, 'cut', (ctx, lt, t) => { duoBG(ctx, lt, t);
+  const q = popIn(lt, at(30) + 5.4); if (q > 0) tag(ctx, 1150, 300, 'one bad company can\'t sink you', GREEN, '#fff', 40 * q); });
+shot(31, 'cut', (ctx, lt, t, at) => { paper(ctx, drift(t, lt)); card(ctx, 330, 130, 1260, 740);
+  text(ctx, 'A good index fund', 960, 230, 64, INK, INK, 0); const ul = popIn(lt, .2); if (ul > 0) line(ctx, 960 - 260 * ul, 285, 960 + 260 * ul, 285, 10, GOLD);
+  [['ok', 'Low fees', 'fee'], ['ok', 'Real products and services', 'real'], ['no', 'No gambling', 'gambling'], ['no', 'No alcohol', 'alcohol'], ['no', 'No lending money at interest', 'lending']].forEach(([k, s, w], i) => {
+    const p = popIn(lt, at(WS(31, w)) - .1); if (p <= 0) return; const y = 360 + i * 105;
+    circle(ctx, 500, y, 34 * p); fillStroke(ctx, k === 'ok' ? GREEN : REDC, 6); text(ctx, k === 'ok' ? '✓' : '✕', 500, y + 2, 40 * p, '#fff', INK, 0);
+    text(ctx, s, 570, y + 2, 50 * p, INK, INK, 0, 'Poppins', 700, 'left'); }); });
+shot(WS(31, 'when'), 'cut', (ctx, lt, t) => { duoBG(ctx, lt, t);
   const g = easeOut(clamp(lt / 3.5)); ctx.save(); ctx.translate(1150, 760); ctx.scale(1.1, 1.1 + .25 * g); ctx.translate(-1150, -760); indexBasket(ctx, 1150, 760, 1, 12, 1); ctx.restore();
   for (let k = 0; k < 6; k++) { const f = clamp((lt - .5 - k * .4) / 1.2); coin(ctx, 900 + k * 90, lerp(520, 300, f), 34, k, f > 0 && f < 1 ? 1 : 0); }
   drawStick(ctx, C(SAM, { x: 480, y: 900, s: 330, arms: cheer, face: { eyes: 'happy', mouth: 'grin' } })); });
 
-// 4. compound interest ----------------------------------------------------------------------------
-shot(32, 'whip', (ctx, lt, t) => sectionTitle(ctx, lt, t, 'Part 2', 'Compound interest'));
+// 4. compound growth ----------------------------------------------------------------------------
+shot(32, 'whip', (ctx, lt, t) => sectionTitle(ctx, lt, t, 'Part 2', 'Compound growth'));
 shot(34, 'cut', (ctx, lt, t) => { duoBG(ctx, lt, t);
   jar(ctx, 960, 880, 1.6, .25, 0); const p = popIn(lt, .4); if (p > 0) tag(ctx, 960, 300, 'year 1: $1,200 in', SAMC, '#fff', 52 * p);
-  const c = clamp((lt - 3) / .6); if (c > 0) { coin(ctx, 1260, lerp(400, 640, easeOut(c)), 40, 0); tag(ctx, 1400, 560, '+ a little interest', GOLD, INK, 38); }
+  const c = clamp((lt - 3) / .6); if (c > 0) { coin(ctx, 1260, lerp(400, 640, easeOut(c)), 40, 0); tag(ctx, 1400, 560, '+ a little growth', GOLD, INK, 38); }
   drawStick(ctx, C(SAM, { x: 520, y: 900, s: 320, arms: { L: [.3, -.1], R: [1.2, -.4] } })); });
 shot(35, 'cut', (ctx, lt, t) => { duoBG(ctx, lt, t);
   card(ctx, 380, 170, 1160, 660);
-  const rows = [['your money', SAMC, 0], ['interest on it', GOLD, 1.6], ['interest on the interest', '#ffe14d', 3.6]];
+  const rows = [['your money', SAMC, 0], ['growth on it', GOLD, 1.6], ['growth on the growth', '#ffe14d', 3.6]];
   rows.forEach(([s, c, t0], k) => { const p = popIn(lt, t0); if (p <= 0) return; const w = [520, 160, 60][k];
     rrect(ctx, 480, 260 + k * 170, w * p, 110, 18); fillStroke(ctx, c, 6); text(ctx, s, 480 + w * p + 30, 315 + k * 170, 44, INK, INK, 0, 'Poppins', 700, 'left'); }); });
 shot(36, 'cut', (ctx, lt, t) => { duoBG(ctx, lt, t);
