@@ -141,9 +141,16 @@ function sectionTitle(ctx, lt, t, kicker, title) {
   paper(ctx, drift(t, lt));
   const p = popIn(lt, .05, .4);
   ctx.save(); ctx.translate(960, 520); ctx.scale(p, p);
-  text(ctx, kicker, 0, -110, 46, GREEN_D, INK, 0); text(ctx, title, 0, 10, 120, INK, INK, 0);
+  // long titles wrap onto two balanced lines so nothing runs off the edge (max width 1500 px)
+  ctx.font = '700 120px Poppins'; let lines = [title];
+  if (ctx.measureText(title).width > 1500) { const w = title.split(' '); let best = 1, bd = 1e9;
+    for (let k = 1; k < w.length; k++) { const d = Math.abs(ctx.measureText(w.slice(0, k).join(' ')).width - ctx.measureText(w.slice(k).join(' ')).width); if (d < bd) { bd = d; best = k; } }
+    lines = [w.slice(0, best).join(' '), w.slice(best).join(' ')]; }
+  const two = lines.length > 1, size = two ? 110 : 120;
+  text(ctx, kicker, 0, two ? -175 : -110, 46, GREEN_D, INK, 0);
+  lines.forEach((l, k) => text(ctx, l, 0, two ? -65 + k * 130 : 10, size, INK, INK, 0));
   ctx.restore();
-  const u = clamp((lt - .3) / .5); line(ctx, 960 - 340 * u, 620, 960 + 340 * u, 620, 14, GOLD);
+  const uy = two ? 685 : 620, u = clamp((lt - .3) / .5); line(ctx, 960 - 340 * u, uy, 960 + 340 * u, uy, 14, GOLD);
 }
 function endScreen(ctx, lt, t) {
   paper(ctx, { x: 960, y: 540, z: 1 });
