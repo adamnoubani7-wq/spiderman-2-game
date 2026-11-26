@@ -101,9 +101,9 @@ for t, tr, sec in CUES:
     if t <= 0: continue
     if sec: place(sfx, riser(1.4) * .6, t - 1.3, .14); place(sfx, boom(), t + .05, .45)
     elif tr == 'whip': place(sfx, whoosh(.36), t - .22, .3)
-for t0, t1 in EV['rain']: place(sfx, noise_bed(t1 - t0 + 1, 1500, 9000, .18, .3), t0)
-for t0, t1 in EV['wind']: place(sfx, noise_bed(t1 - t0 + .5, 200, 1400, .5, .6, .35), t0)
-for t0, t1 in EV['plane']: place(sfx, noise_bed(t1 - t0 + .5, 60, 500, .35, .15, .1), t0)
+for t0, t1 in EV['rain']: place(sfx, noise_bed(t1 - t0 + 1, 1500, 9000, .06, .3), t0)
+for t0, t1 in EV['wind']: place(sfx, noise_bed(t1 - t0 + .5, 200, 1400, .25, .6, .35), t0)
+for t0, t1 in EV['plane']: place(sfx, noise_bed(t1 - t0 + .5, 60, 500, .2, .15, .1), t0)
 for t in EV['stamps']: place(sfx, stamp_sfx(), t, .45)
 place(sfx, boom(1.0), EV['bump'], .7); place(sfx, thud(50, .6, 1), EV['bump'], .5)
 place(sfx, thud(80, .4, 1), EV['no'] + .05, .5)
@@ -221,7 +221,8 @@ VO = np.zeros(N); VO[:min(N, len(vo))] = vo[:N]
 # duck music under VO
 venv = lp(np.abs(VO), 6); vtrack = np.clip(venv / .05, 0, 1)
 duck = 1 - .55 * vtrack
-mixL = VO * 1.0 + music * .22 * duck + sfx * .7
+sduck = 1 - .5 * vtrack   # sound effects also dip under the voice
+mixL = VO * 1.25 + music * .18 * duck + sfx * .6 * sduck
 mixR = mixL.copy()
 out = np.stack([mixL, mixR], 1)
 fade = np.ones(N); fl = int(.5 * SR); fade[-fl:] = np.linspace(1, 0, fl); out *= fade[:, None]
