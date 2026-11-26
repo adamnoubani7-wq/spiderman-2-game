@@ -1,7 +1,10 @@
-# Upload sheet: $100 a Month: Start at 25 vs 35
+# Upload sheet: Investing $100 a Month at 25 vs 35
 
 ## Title
-$100 a Month: Start at 25 vs 35
+Investing $100 a Month at 25 vs 35
+
+## Thumbnail
+thumb/thumbnail-a.png  ("$140,000 GONE"). Test & Compare extras: thumbnail-c.png, thumbnail.png
 
 ## Description (copy everything between the lines)
 ---
@@ -55,7 +58,6 @@ start investing at 25, investing at 25 vs 35, invest 100 a month, $100 a month i
 - Category: Education
 - Audience: No, it's not made for kids
 - Language: English
-- Thumbnail: thumb/thumbnail.png
 - End screen: the last 12 seconds (two video/subscribe boxes)
 - Upload time: 17:00-19:00 UAE
 
