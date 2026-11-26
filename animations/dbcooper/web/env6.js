@@ -84,7 +84,7 @@ const BOY = { cols: ['#e9725b', '#f2b75a'], hat: 'none', belt: false };
 const PAX = [['#7a8fd6', '#7a8fd6'], ['#e9725b', '#e9725b'], ['#5fbf9a', '#5fbf9a'], ['#c98bd6', '#c98bd6'], ['#f2b75a', '#f2b75a'], ['#8a9aa8', '#8a9aa8']].map(c => ({ cols: c, hat: 'none', belt: false }));
 const sitLegs = { L: [1.45, -1.5], R: [1.4, -1.5] };
 const walk = (t, sp = 7, amp = .5) => ({ L: [Math.sin(t * sp) * amp + .05, -Math.max(0, Math.sin(t * sp + 1)) * .7], R: [-Math.sin(t * sp) * amp + .05, -Math.max(0, -Math.sin(t * sp + 1)) * .7] });
-const hips = { L: [.9, -2.2], R: [.9, -2.2] }, shrug = { L: [1.3, -2.2], R: [1.3, -2.2] }, handsHead = { L: [2.3, -2.3], R: [2.3, -2.3] }, armsDown = { L: [.2, -.05], R: [.2, -.05] };
+const cheer = { L: [2.6, .2], R: [2.6, .2] }, hips = { L: [.9, -2.2], R: [.9, -2.2] }, shrug = { L: [1.3, -2.2], R: [1.3, -2.2] }, handsHead = { L: [2.3, -2.3], R: [2.3, -2.3] }, armsDown = { L: [.2, -.05], R: [.2, -.05] };
 function silhouette(ctx, x, y, s, col = '#0b0f18', o = {}) { drawStick(ctx, C({ cols: [col, col], hat: 'none', belt: false }, { x, y, s, sil: col, shadow: false, ...o })); }
 
 // --- the Boeing 727 (side view, facing right). s = half length in px ---
