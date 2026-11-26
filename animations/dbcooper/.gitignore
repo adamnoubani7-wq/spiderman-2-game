@@ -1,0 +1,11 @@
+seg/
+stills/
+silent.mp4
+audio/line_*.wav
+audio/vo_kokoro.wav
+audio/mix.wav
+sheet*.jpg
+*.part.mp4
+audio/*.wav
+sheets/
+audio/*.log
