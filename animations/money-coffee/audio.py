@@ -10,7 +10,8 @@ def toNew(x):
     for i in range(len(A) - 1):
         if x <= A[i + 1][0]: k = (x - A[i][0]) / (A[i + 1][0] - A[i][0]); return A[i][1] + k * (A[i + 1][1] - A[i][1])
     return x - A[-1][0] + A[-1][1]
-DUR = 469.1 + 12.0 + 0.1
+EV = json.load(open('audio/events.json'))
+DUR = EV['vo_end'] + .35 + 12 + .1
 N = int(DUR * SR)
 rng = np.random.default_rng(3)
 def T(n): return np.arange(n) / SR
@@ -98,7 +99,7 @@ for t, tr, sec in CUES:
     elif tr == 'whip': place(sfx, whoosh(.36), t - .22, .32)
     else: place(sfx, pop(520), t + .05, .16)
 place(sfx, coins(6), 0.4, .3)                                   # Sam & Alex, coins
-place(sfx, chime(1046, 1.0), 469.2, .35); place(sfx, sparkle_sfx(), 469.7, .3)   # end screen
+place(sfx, chime(1046, 1.0), EV['vo_end'] + .45, .35); place(sfx, sparkle_sfx(), EV['vo_end'] + .9, .3)   # end screen
 # ---------------- music (procedural sea-shanty jig, D minor, 6/8) ----------------
 BPM = 132  # dotted-quarter = beat; eighth = 60/BPM/... use eighth duration
 E8 = 60 / BPM / 2 * 1.0  # eighth note seconds (6/8 feel)
@@ -180,12 +181,8 @@ def sneak(t0, t1, g=1.0):
     while t < t1 - .05:
         place(music, reed(steps[i % 8] + 12, .2, .8), t, g); place(music, pizz(steps[i % 8], .35, .6), t, g)
         t += BEAT * (1 if i % 2 == 0 else 1); i += 1
-playful(0, 120, DMAJ, .55, glock_on=True)
-playful(120, 314.7, DMAJ, .5, glock_on=False)
-playful(314.7, 375.5, DMAJ, .5, glock_on=True)
-playful(375.5, 399.8, DM, .45, glock_on=False)     # the crash part, minor key
-playful(399.8, 469.1, DMAJ, .5, glock_on=True)
-playful(469.1, DUR - .6, DMAJ, .8, glock_on=True)   # end screen, no voice
+P = [0] + EV['parts'] + [EV['vo_end'] + .35, DUR - .6]
+for k in range(len(P) - 1): playful(P[k], P[k + 1], DMAJ, .8 if k == len(P) - 2 else .5, glock_on=(k % 2 == 0))
 music = lp(music, 6000)
 
 # ---------------- VO + mix ----------------
