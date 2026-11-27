@@ -1,0 +1,32 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+@font-face{font-family:Poppins;font-weight:700;src:url(../web/fonts/Poppins-Bold.ttf)}
+body{margin:0;background:#000}</style></head><body>
+<canvas id="c" width="1920" height="1080"></canvas>
+<script src="../web/lib.js"></script><script src="../web/chars.js"></script><script src="../web/env.js"></script>
+<script src="../web/env2.js"></script><script src="../web/env3.js"></script><script src="../web/env5.js"></script>
+<script>
+const C2 = (b, e) => Object.assign({}, b, e);
+function cup(ctx, x, y, s) { ctx.save(); ctx.translate(x, y); ctx.scale(s, s);
+  path(ctx, [[-50, -110], [50, -110], [38, 40], [-38, 40]]); fillStroke(ctx, '#fff', 6); path(ctx, [[-46, -60], [46, -60], [42, -10], [-42, -10]]); fillStroke(ctx, '#b07a4a', 5); rrect(ctx, -58, -134, 116, 28, 10); fillStroke(ctx, '#3a2a22', 6);
+  for (let k = 0; k < 3; k++) { ctx.beginPath(); ctx.moveTo(-20 + k * 20, -150); ctx.quadraticCurveTo(0 + k * 20, -185, -20 + k * 20, -220); ctx.lineWidth = 7; ctx.strokeStyle = 'rgba(150,150,160,.7)'; ctx.stroke(); } ctx.restore(); }
+function draw() {
+  const ctx = document.getElementById('c').getContext('2d');
+  paper(ctx, { x: 960, y: 540, z: 1 });
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  let g = ctx.createRadialGradient(1450, 620, 60, 1450, 620, 760); g.addColorStop(0, 'rgba(63,191,116,.45)'); g.addColorStop(1, 'rgba(63,191,116,0)'); ctx.fillStyle = g; ctx.fillRect(0, 0, 1920, 1080);
+  floorLine(ctx, 1000);
+  // the money the coffee could have become: a huge pile
+  for (const [x, n] of [[1180, 14], [1320, 20], [1460, 24], [1600, 18], [1740, 11]]) coinStack(ctx, x, 990, n, 82);
+  for (const [x, y, r] of [[1250, 360, -.3], [1700, 420, .25], [1420, 250, .1], [1800, 600, -.2]]) bill(ctx, x, y, 170, r);
+  // Sam with a giant coffee, shocked
+  drawStick(ctx, C2(SAM, { x: 330, y: 1000, s: 520, arms: { L: [.3, -.1], R: [1.5, -.4] }, face: { eyes: 'wide', mouth: 'o', look: [1, -.2] } }));
+  cup(ctx, 640, 760, 2.4);
+  // price tag on the cup and the arrow to the pile
+  ctx.save(); ctx.translate(640, 440); ctx.rotate(-.12); path(ctx, [[-110, -55], [80, -55], [130, 0], [80, 55], [-110, 55]]); fillStroke(ctx, REDC, 7); text(ctx, '$5', -10, 4, 72, '#fff', INK, 0); ctx.restore();
+  arrow(ctx, 790, 560, 1080, 560, 30, GOLD);
+  // headline: two words, top centre
+  text(ctx, 'WORTH IT?', 960, 140, 190, GOLD, INK, 24);
+  document.title = 'ready';
+}
+document.fonts.load('700 100px Poppins').then(draw);
+</script></body></html>
