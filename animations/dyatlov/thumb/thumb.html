@@ -1,0 +1,27 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+@font-face{font-family:Poppins;font-weight:700;src:url(../web/fonts/Poppins-Bold.ttf)}
+@font-face{font-family:Lora;font-weight:400 700;src:url(../web/fonts/Lora-Variable.ttf)}
+body{margin:0;background:#000}</style></head><body>
+<canvas id="c" width="1920" height="1080"></canvas>
+<script src="../web/lib.js"></script><script src="../web/chars.js"></script><script src="../web/env.js"></script>
+<script src="../web/env2.js"></script><script src="../web/env3.js"></script><script src="../web/env6.js"></script><script src="../web/env7.js"></script>
+<script>
+function draw() {
+  const ctx = document.getElementById('c').getContext('2d');
+  snowNight(ctx, { x: 960, y: 540, z: 1 }, 760); mountains(ctx, 760, 1); moon(ctx, 1700, 150, 80);
+  // the tent, big, slashed open from the inside, glowing
+  tent(ctx, 760, 860, 2.3, { cut: 0, light: 1, bury: .25 });
+  for (const [x0, y0, x1, y1] of [[470, 520, 1030, 760], [940, 500, 1260, 690]]) { const n = 9, pts = [], back = []; for (let i = 0; i <= n; i++) { const f = i / n, x = lerp(x0, x1, f), y = lerp(y0, y1, f), w = Math.sin(f * Math.PI) * 26 + 4, j = (i % 2 ? 1 : -1) * 6; pts.push([x + j, y - w]); back.unshift([x - j, y + w]); }
+    path(ctx, pts.concat(back)); ctx.fillStyle = '#0b0f18'; ctx.fill(); ctx.lineWidth = 6; ctx.strokeStyle = '#7a5a2e'; ctx.stroke(); }
+  // footprints leading away into the dark forest
+  footprints(ctx, trail(1180, 900, 1880, 760, 26, 3), 1);
+  forest(ctx, 760, 4, 8, 200, 340, .7, 1500, 2100);
+  for (let k = 0; k < 4; k++) silhouette(ctx, 1500 + k * 90, 780 - k * 8, 160, '#0b0f18');
+  snowfall(ctx, 0, .7, 160, .6);
+  vignetteDark(ctx, .5);
+  text(ctx, 'CUT FROM INSIDE', 960, 130, 150, '#f4f1e8', INK, 18);
+  bigQ(ctx, 1780, 520, 220, REDC, 1);
+  document.title = 'ready';
+}
+document.fonts.load('700 100px Poppins').then(draw);
+</script></body></html>
