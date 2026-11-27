@@ -1,0 +1,8 @@
+seg/
+stills/
+sheets/
+silent.mp4
+audio/*.wav
+audio/*.log
+sheet*.jpg
+*.part.mp4
