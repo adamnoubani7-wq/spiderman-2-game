@@ -11,7 +11,7 @@ def toNew(x):
         if x <= A[i + 1][0]: k = (x - A[i][0]) / (A[i + 1][0] - A[i][0]); return A[i][1] + k * (A[i + 1][1] - A[i][1])
     return x - A[-1][0] + A[-1][1]
 EV = json.load(open('audio/events.json'))
-DUR = EV['vo_end'] + .35 + 15 + .1
+DUR = EV['vo_end'] + .35 + EV['end_dur'] + .1
 N = int(DUR * SR)
 rng = np.random.default_rng(3)
 def T(n): return np.arange(n) / SR
@@ -101,13 +101,9 @@ for t, tr, sec in CUES:
     if t <= 0: continue
     if sec: place(sfx, riser(1.4) * .6, t - 1.3, .14); place(sfx, boom(), t + .05, .45)
     elif tr == 'whip': place(sfx, whoosh(.36), t - .22, .3)
-for t0, t1 in EV['rain']: place(sfx, noise_bed(t1 - t0 + 1, 1500, 9000, .06, .3), t0)
 for t0, t1 in EV['wind']: place(sfx, noise_bed(t1 - t0 + .5, 200, 1400, .25, .6, .35), t0)
-for t0, t1 in EV['plane']: place(sfx, noise_bed(t1 - t0 + .5, 60, 500, .2, .15, .1), t0)
 for t in EV['stamps']: place(sfx, stamp_sfx(), t, .45)
-place(sfx, boom(1.0), EV['bump'], .7); place(sfx, thud(50, .6, 1), EV['bump'], .5)
-place(sfx, thud(80, .4, 1), EV['no'] + .05, .5)
-place(sfx, whoosh(.9, up=False), EV['jump0'] - .1, .35)
+for t in EV['hits']: place(sfx, boom(1.0), t, .6); place(sfx, thud(50, .6, 1), t, .45)
 place(sfx, chime(880, 1.4), EV['vo_end'] + .4, .25)
 # ---------------- music (procedural sea-shanty jig, D minor, 6/8) ----------------
 BPM = 132  # dotted-quarter = beat; eighth = 60/BPM/... use eighth duration
@@ -194,7 +190,7 @@ def sneak(t0, t1, g=1.0):
 BAR = 60 / 66 * 4
 PROG = [(38, (50, 57, 62, 65)), (34, (46, 53, 58, 62)), (31, (43, 50, 55, 58)), (33, (45, 52, 57, 61))]   # Dm Bb Gm A
 MOTIF = [(0, 74), (1, 77), (2, 76), (3.5, 73)]
-TENSE = [(0, EV['rain'][0][1]), (EV['rain'][2][0] - 30, EV['rain'][2][1] + 10), (EV['rain'][4][0] - 5, EV['rain'][4][1] + 10)]
+TENSE = [tuple(x) for x in EV['tense']]
 def tense(t): return any(a <= t <= b for a, b in TENSE)
 t = 0.0; k = 0
 while t < DUR - .5:
