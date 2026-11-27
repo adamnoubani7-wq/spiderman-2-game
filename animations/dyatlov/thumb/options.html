@@ -1,0 +1,47 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+@font-face{font-family:Poppins;font-weight:700;src:url(../web/fonts/Poppins-Bold.ttf)}
+body{margin:0;background:#000} canvas{display:block}</style></head><body>
+<canvas id="a" width="1920" height="1080"></canvas><canvas id="b" width="1920" height="1080"></canvas><canvas id="c" width="1920" height="1080"></canvas>
+<script src="../web/lib.js"></script><script src="../web/chars.js"></script><script src="../web/env.js"></script>
+<script src="../web/env2.js"></script><script src="../web/env3.js"></script><script src="../web/env6.js"></script><script src="../web/env7.js"></script>
+<script>
+const Y = '#ffd23a';
+function big(ctx, s, x, y, size, fill, rot = 0) { ctx.save(); ctx.translate(x, y); ctx.rotate(rot); text(ctx, s, 0, 0, size, fill, INK, size * .12); ctx.restore(); }
+function bg(ctx, top, bot) { ctx.setTransform(1, 0, 0, 1, 0, 0); const g = ctx.createLinearGradient(0, 0, 0, 1080); g.addColorStop(0, top); g.addColorStop(1, bot); ctx.fillStyle = g; ctx.fillRect(0, 0, 1920, 1080); }
+function glowAt(ctx, x, y, r, col) { const g = ctx.createRadialGradient(x, y, 10, x, y, r); g.addColorStop(0, col); g.addColorStop(1, 'rgba(0,0,0,0)'); ctx.fillStyle = g; ctx.fillRect(0, 0, 1920, 1080); }
+function gash(ctx, x0, y0, x1, y1, w, fill) { const n = 14, pts = [], back = []; for (let i = 0; i <= n; i++) { const f = i / n, x = lerp(x0, x1, f), y = lerp(y0, y1, f), ww = Math.sin(f * Math.PI) * w + 3, j = (i % 2 ? 1 : -1) * w * .18; pts.push([x + j, y - ww]); back.unshift([x - j, y + ww]); } path(ctx, pts.concat(back)); ctx.fillStyle = fill; ctx.fill(); ctx.lineWidth = 10; ctx.strokeStyle = '#5e4320'; ctx.stroke(); }
+function knife(ctx, x, y, s, rot) { ctx.save(); ctx.translate(x, y); ctx.rotate(rot); ctx.scale(s, s); path(ctx, [[0, -18], [260, -6], [300, 0], [260, 10], [0, 18]]); fillStroke(ctx, '#dfe6ee', 7); line(ctx, 30, -4, 240, -2, 4, 'rgba(255,255,255,.8)'); rrect(ctx, -150, -26, 150, 52, 16); fillStroke(ctx, '#5a3b26', 7); rrect(ctx, -16, -40, 26, 80, 8); fillStroke(ctx, '#9aa3ad', 6); ctx.restore(); }
+
+// A: the gash, extreme close-up of the tent wall
+function A() { const ctx = document.getElementById('a').getContext('2d');
+  bg(ctx, '#d8b878', '#a9834a'); for (let x = -100; x < 2000; x += 160) line(ctx, x, 0, x + 120, 1080, 6, 'rgba(90,60,20,.18)');
+  ctx.fillStyle = 'rgba(0,0,0,.25)'; ctx.fillRect(0, 0, 1920, 1080);
+  glowAt(ctx, 1000, 560, 700, 'rgba(255,220,140,.35)');
+  gash(ctx, 420, 300, 1500, 820, 120, '#05070c');
+  // a terrified eye looking out through the gash
+  ctx.save(); const n = 14, pts = [], back = []; for (let i = 0; i <= n; i++) { const f = i / n, x = lerp(420, 1500, f), y = lerp(300, 820, f), ww = Math.sin(f * Math.PI) * 120 + 3, j = (i % 2 ? 1 : -1) * 21; pts.push([x + j, y - ww]); back.unshift([x - j, y + ww]); } path(ctx, pts.concat(back)); ctx.clip();
+  circle(ctx, 1010, 600, 330); ctx.fillStyle = '#e9e4da'; ctx.fill(); ctx.fillStyle = 'rgba(0,0,0,.35)'; ctx.fillRect(400, 280, 1200, 600); ellipse(ctx, 980, 560, 120, 92); fillStroke(ctx, '#fff', 10); circle(ctx, 1010, 555, 44); ctx.fillStyle = INK; ctx.fill(); circle(ctx, 1024, 540, 12); ctx.fillStyle = '#fff'; ctx.fill(); ctx.restore();
+  knife(ctx, 640, 405, 1.4, -2.69);
+  big(ctx, 'CUT FROM', 520, 150, 150, '#fff', -.03); big(ctx, 'INSIDE', 560, 960, 200, Y, -.03);
+  vignetteDark(ctx, .55); }
+
+// B: the face, a giant terrified hiker
+function B() { const ctx = document.getElementById('b').getContext('2d');
+  bg(ctx, '#0b1220', '#22304a'); stars(ctx, 60, 3, .6); snowfall(ctx, 0, .8, 140, .4);
+  ctx.fillStyle = NIGHT_SNOW; ctx.fillRect(0, 900, 1920, 200); line(ctx, 0, 900, 1920, 900, 6);
+  glowAt(ctx, 1380, 760, 520, 'rgba(255,200,110,.45)'); tent(ctx, 1400, 905, 1.6, { cut: 1, light: 1, bury: .2 });
+  circle(ctx, 1420, 760, 230); ctx.lineWidth = 16; ctx.strokeStyle = '#ff3b30'; ctx.stroke();
+  drawStick(ctx, C(HIKERS[0], { x: 540, y: 2300, s: 2200, shadow: false, arms: { L: [2.2, -2.4], R: [2.2, -2.4] }, face: { eyes: 'wide', mouth: 'o', look: [1, -.1] } }));
+  big(ctx, 'WHY?', 1420, 300, 260, Y, .04); vignetteDark(ctx, .45); }
+
+// C: bare footprints into the dark
+function C3() { const ctx = document.getElementById('c').getContext('2d');
+  bg(ctx, '#0b1220', '#1e2a40'); stars(ctx, 60, 7, .6); mountains(ctx, 560, 1); forest(ctx, 600, 3, 14, 180, 300, .75, -100, 2020);
+  for (let k = 0; k < 9; k++) silhouette(ctx, 760 + k * 55, 610 - (k % 2) * 6, 120, '#05070c');
+  ctx.fillStyle = '#c9d4e3'; ctx.beginPath(); ctx.moveTo(0, 600); ctx.lineTo(1920, 600); ctx.lineTo(1920, 1080); ctx.lineTo(0, 1080); ctx.fill(); line(ctx, 0, 600, 1920, 600, 6);
+  // big bare footprints in perspective, from the camera to the forest
+  for (let i = 0; i < 9; i++) { const f = i / 8, s = lerp(4.2, .7, f), x = lerp(760, 960, f) + (i % 2 ? 1 : -1) * lerp(130, 20, f), y = lerp(1000, 640, Math.pow(f, .7)); ctx.save(); ctx.translate(x, y); ctx.scale(s * (i % 2 ? -1 : 1), s * .6); ctx.rotate(.08); ctx.fillStyle = 'rgba(25,35,55,.85)'; ellipse(ctx, 1, -6, 14, 20); ctx.fill(); ellipse(ctx, -2, 18, 10, 12); ctx.fill(); ctx.fillRect(-9, 4, 19, 12); for (let tt = 0; tt < 5; tt++) { circle(ctx, -11 + tt * 5.6, -30 + Math.abs(tt - 1) * 2 + tt * .8, 4.6 - tt * .55); ctx.fill(); } ctx.restore(); }
+  snowfall(ctx, 0, .8, 160, .4); thermometer(ctx, 1700, 900, 520, -30);
+  big(ctx, 'NO SHOES.', 560, 180, 170, '#fff', -.03); big(ctx, '−30°C', 1480, 200, 150, '#9fd0ff', .03); vignetteDark(ctx, .4); }
+document.fonts.load('700 100px Poppins').then(() => { A(); B(); C3(); document.title = 'ready'; });
+</script></body></html>

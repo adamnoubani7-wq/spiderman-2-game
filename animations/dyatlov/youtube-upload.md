@@ -4,7 +4,7 @@
 9 Hikers, 1 Night, No Answer: Dyatlov Pass
 
 ## Thumbnail
-thumb/thumbnail.png  ("CUT FROM INSIDE")
+thumb/thumbnail.png  ("WHY?", the terrified hiker). Test & Compare extras: thumbnail-a.png, thumbnail-c.png
 
 ## Description
 ---
