@@ -1,0 +1,28 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+@font-face{font-family:Poppins;font-weight:700;src:url(../web/fonts/Poppins-Bold.ttf)}
+@font-face{font-family:Lora;font-weight:400 700;src:url(../web/fonts/Lora-Variable.ttf)}
+body{margin:0;background:#000}</style></head><body>
+<canvas id="c" width="1920" height="1080"></canvas>
+<script src="../web/lib.js"></script><script src="../web/chars.js"></script><script src="../web/env.js"></script>
+<script src="../web/env2.js"></script><script src="../web/env3.js"></script><script src="../web/env6.js"></script>
+<script>
+function draw() {
+  const ctx = document.getElementById('c').getContext('2d');
+  night(ctx, { x: 960, y: 540, z: 1 }); stars(ctx, 40, 4, .5); moon(ctx, 1720, 150, 80);
+  cloudBank(ctx, 1000, 3, 0, 0);
+  // the 727 with its tail stairs down, top right
+  plane727(ctx, 1380, 300, 520, { t: 0, stairs: 1, dark: 1, tilt: -.04 });
+  // Cooper falling with the money bag, big and close
+  ctx.save(); ctx.translate(760, 620); ctx.rotate(-.35);
+  drawStick(ctx, C(COOPER, { x: 0, y: 330, s: 640, shadow: false, arms: { L: [2.3, .2], R: [2.0, .3] }, legs: { L: [.5, -.4], R: [-.4, -.3] }, face: { eyes: 'normal', mouth: 'flat' } }));
+  moneyBag(ctx, 120, 120, 1.1, 0); ctx.restore();
+  for (const [x, y, r] of [[300, 300, .4], [1100, 760, -.3], [420, 820, .2], [1250, 600, .5]]) bill20(ctx, x, y, 140, r, .9);
+  rain(ctx, 0, .35, 120, .3);
+  vignetteDark(ctx, .55);
+  // headline, bottom left (YouTube puts the timestamp bottom right)
+  ctx.save(); ctx.translate(560, 930); ctx.rotate(-.04); rrect(ctx, -500, -100, 1000, 200, 26); fillStroke(ctx, REDC, 12); text(ctx, 'NEVER FOUND', 0, 10, 150, '#fff', INK, 0); ctx.restore();
+  bigQ(ctx, 1620, 760, 260, AMBER, 1);
+  document.title = 'ready';
+}
+document.fonts.load('700 100px Poppins').then(draw);
+</script></body></html>
